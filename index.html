@@ -5,58 +5,77 @@
     <title>mathias377 ws</title>
     <script>
       var ws = new WebSocket("wss://server-sender--gabrielmakiewic.repl.co")
-      ws.onmessage = e => {
-        var childs = document.getElementById('chat-messages').children
-        if(childs.length > 20) {
-          childs[0].remove()
-          childs[1].remove()
-        }
-        console.log(e.data)
-        var elem = document.createElement("span")
-        var br = document.createElement("br")
-        br.innerHTML = e.data.replace(/&/g, "&amp;").replace(/\"/g, "&quot;").replace(/\'/g, "&#39;").replace(/\//g, "&#x2F;")
-        elem.innerHTML = e.data.replace(/&/g, "&amp;").replace(/\"/g, "&quot;").replace(/\'/g, "&#39;").replace(/\//g, "&#x2F;")
-        document.getElementById('chat-messages').appendChild(elem)
-        document.getElementById('chat-messages').appendChild(br)
-      }
 
-      function setNick(nick) {
-        ws.send(JSON.stringify([0, nick]))
-      }
-      function send(msg) {
-        ws.send(JSON.stringify([1, msg]))
-        if(msg.startsWith("/adminlogin")) {
-          msg = msg.split(" ")
-          msg.shift()
-          msg = msg.join(" ")
-          localStorage.adminlogin = msg
-        }
-      }
+function localSend(msg) {
+	var omsg = document.createElement("span")
+	var br = document.createElement("br")
+	omsg.innerHTML = msg
+	document.getElementById('chat-messages').appendChild(omsg)
+	document.getElementById('chat-messages').appendChild(br)
+}
 
-      function sendButton() {
-        var msg = document.getElementById('sendArea').value
-        send(msg)
-        msg = ""
-      }
+function setNick(nick) {
+	ws.send(JSON.stringify([0, nick]))
+}
 
-      function setNickButton() {
-        var nickArea = document.getElementById('nickArea').value
-        if(nickArea.length >= 1 && nickArea.length <= 12) {
-          setNick(nickArea)
-          localStorage.nick = nickArea
-        } else {
-          console.warn("Nick cant be longer than 12 letters and can't be shorter than 1.")
-        }
-      }
+function send(msg) {
+	ws.send(JSON.stringify([1, msg]))
+	if(msg.startsWith("/adminlogin")) {
+		msg = msg.split(" ")
+		msg.shift()
+		msg = msg.join(" ")
+		localStorage.adminlogin = msg
+	}
+}
 
-      ws.onopen = () => {
-      if(localStorage.nick.length >= 1) {
-        setNick(localStorage.nick)
-      }
-      if(localStorage.adminlogin) {
-        send("/adminlogin " + localStorage.adminlogin)
-      }
-    }
+function sendButton() {
+	var msg = document.getElementById('sendArea').value
+	send(msg)
+	msg = ""
+}
+
+function setNickButton() {
+	var nickArea = document.getElementById('nickArea').value
+	if(nickArea.length >= 1 && nickArea.length <= 12) {
+		setNick(nickArea)
+		localStorage.nick = nickArea
+	} else {
+		console.warn("Nick cant be longer than 12 letters and can't be shorter than 1.")
+	}
+}
+
+function connectConfig() {
+	ws.onopen = () => {
+		if(localStorage.adminlogin) {
+			send("/adminlogin " + localStorage.adminlogin)
+		}
+		if(localStorage.nick.length >= 1) {
+			setNick(localStorage.nick)
+			document.getElementById('nickArea').value = localStorage.nick
+		}
+	}
+	ws.onclose = () => {
+		localSend("Disconnected. Trying to reconnect.")
+		setTimeout(function() {
+			ws = new WebSocket("wss://server-sender--gabrielmakiewic.repl.co")
+			connectConfig()
+		}, 3000)
+	}
+	ws.onmessage = e => {
+		var childs = document.getElementById('chat-messages').children
+		if(childs.length > 20) {
+			childs[0].remove()
+			childs[1].remove()
+		}
+		console.log(e.data)
+		var elem = document.createElement("span")
+		var br = document.createElement("br")
+		elem.innerHTML = e.data
+		document.getElementById('chat-messages').appendChild(elem)
+		document.getElementById('chat-messages').appendChild(br)
+	}
+}
+connectConfig()
 
     </script>
   </head>
