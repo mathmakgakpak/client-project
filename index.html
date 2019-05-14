@@ -4,6 +4,37 @@
     <meta charset="utf-8">
     <title>mathias377 ws</title>
     <script>
+
+      function Sound(source, volume, loop) {
+	this.source = source;
+	this.volume = volume;
+	this.loop = loop;
+	var son;
+	this.son = son;
+	this.finish = false;
+	this.stop = function() {
+		document.body.removeChild(this.son);
+	}
+	this.start = function() {
+		if(this.finish) return false;
+		this.son = document.createElement("embed");
+		this.son.setAttribute("src", this.source);
+		this.son.setAttribute("hidden", "true");
+		this.son.setAttribute("volume", this.volume);
+		this.son.setAttribute("autostart", "true");
+		this.son.setAttribute("loop", this.loop);
+		document.body.appendChild(this.son);
+	}
+	this.remove = function() {
+		document.body.removeChild(this.son);
+		this.finish = true;
+	}
+	this.init = function(volume, loop) {
+		this.finish = false;
+		this.volume = volume;
+		this.loop = loop;
+	}
+}
       var ws = new WebSocket("wss://server-sender--gabrielmakiewic.repl.co")
 
 function localSend(msg) {
@@ -29,9 +60,9 @@ function send(msg) {
 }
 
 function sendButton() {
-	var msg = document.getElementById('sendArea').value
-	send(msg)
-	msg = ""
+  var area = document.getElementById('sendArea')
+  send(area.value)
+  area.value = ""
 }
 
 function setNickButton() {
@@ -67,12 +98,13 @@ function connectConfig() {
 			childs[0].remove()
 			childs[1].remove()
 		}
+    //if(userActive == false) {
+      var pong = new Sound("./bell.mp3", 50, false);
+      pong.start()
+    //}
+
 		console.log(e.data)
-		var elem = document.createElement("span")
-		var br = document.createElement("br")
-		elem.innerHTML = e.data
-		document.getElementById('chat-messages').appendChild(elem)
-		document.getElementById('chat-messages').appendChild(br)
+		localSend(e.data)
 	}
 }
 connectConfig()
