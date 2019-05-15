@@ -1,115 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html>
   <head>
-    <meta charset="utf-8">
-    <title>mathias377 ws</title>
-    <script>
-
-      function Sound(source, volume, loop) {
-	this.source = source;
-	this.volume = volume;
-	this.loop = loop;
-	var son;
-	this.son = son;
-	this.finish = false;
-	this.stop = function() {
-		document.body.removeChild(this.son);
-	}
-	this.start = function() {
-		if(this.finish) return false;
-		this.son = document.createElement("embed");
-		this.son.setAttribute("src", this.source);
-		this.son.setAttribute("hidden", "true");
-		this.son.setAttribute("volume", this.volume);
-		this.son.setAttribute("autostart", "true");
-		this.son.setAttribute("loop", this.loop);
-		document.body.appendChild(this.son);
-	}
-	this.remove = function() {
-		document.body.removeChild(this.son);
-		this.finish = true;
-	}
-	this.init = function(volume, loop) {
-		this.finish = false;
-		this.volume = volume;
-		this.loop = loop;
-	}
-}
-      var ws = new WebSocket("wss://server-sender--gabrielmakiewic.repl.co")
-
-function localSend(msg) {
-	var omsg = document.createElement("span")
-	var br = document.createElement("br")
-	omsg.innerHTML = msg
-	document.getElementById('chat-messages').appendChild(omsg)
-	document.getElementById('chat-messages').appendChild(br)
-}
-
-function setNick(nick) {
-	ws.send(JSON.stringify([0, nick]))
-}
-
-function send(msg) {
-	ws.send(JSON.stringify([1, msg]))
-	if(msg.startsWith("/adminlogin")) {
-		msg = msg.split(" ")
-		msg.shift()
-		msg = msg.join(" ")
-		localStorage.adminlogin = msg
-	}
-}
-
-function sendButton() {
-  var area = document.getElementById('sendArea')
-  send(area.value)
-  area.value = ""
-}
-
-function setNickButton() {
-	var nickArea = document.getElementById('nickArea').value
-	if(nickArea.length >= 1 && nickArea.length <= 12) {
-		setNick(nickArea)
-		localStorage.nick = nickArea
-	} else {
-		console.warn("Nick cant be longer than 12 letters and can't be shorter than 1.")
-	}
-}
-
-function connectConfig() {
-	ws.onopen = () => {
-		if(localStorage.adminlogin) {
-			send("/adminlogin " + localStorage.adminlogin)
-		}
-		if(localStorage.nick.length >= 1) {
-			setNick(localStorage.nick)
-			document.getElementById('nickArea').value = localStorage.nick
-		}
-	}
-	ws.onclose = () => {
-		localSend("Disconnected. Trying to reconnect.")
-		setTimeout(function() {
-			ws = new WebSocket("wss://server-sender--gabrielmakiewic.repl.co")
-			connectConfig()
-		}, 3000)
-	}
-	ws.onmessage = e => {
-		var childs = document.getElementById('chat-messages').children
-		if(childs.length > 20) {
-			childs[0].remove()
-			childs[1].remove()
-		}
-    //if(userActive == false) {
-      var pong = new Sound("./bell.mp3", 50, false);
-      pong.start()
-    //}
-
-		console.log(e.data)
-		localSend(e.data)
-	}
-}
-connectConfig()
-
-    </script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0">
+		<meta name="description" content="Mathias377 websocket chat">
+		<meta name="keywords" content="chat, ws, ws chat, chat ws, mathias377, mathias, mathias377 chat, mathias chat, chat mathias377, chat mathias">
+    <title>mathias377 chat</title>
+    <script type="text/javascript" src="./app.js" async></script>
   </head>
   <body>
     <textarea id="sendArea" placeholder="Chat here"></textarea>

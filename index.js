@@ -1,15 +1,19 @@
 const WebSocket = require('ws')
 const wss = new WebSocket.Server({
-	port: 8070
+	port: 8080
 })
+const WatchJS = require("melanke-watchjs")
+var watch = WatchJS.watch;
+var unwatch = WatchJS.unwatch;
+var callWatchers = WatchJS.callWatchers;
+
 const adminlogin = "test"
 var cmdChar = "/"
 var clients = []
 var id = 0
 const opCodes = {
 	setNick: 0,
-	send: 1,
-  getId: 2
+	send: 1
 };
 /*
 var ws = new WebSocket("wss://server-sender--gabrielmakiewic.repl.co")
@@ -18,6 +22,11 @@ ws.onmessage = e => {
 }
 */
 wss.on('connection', ws => {
+  function sendToUsers(msg) {
+    for(var i = 0; i < clients.length; i++) {
+        clients[i].send(msg)
+    }
+  }
 	var client = {
 		ws,
 		admin: false,
@@ -26,14 +35,21 @@ wss.on('connection', ws => {
 		disconnected: false,
 		before: this.id,
 		send: function send(msg) {
-			if(client.disconnected == false) {
-				ws.send(msg);
-				console.log(msg)
-			}
+			ws.send(msg);
+			//console.log(msg)
 		}
 	}
 	clients.push(client)
-	client = clients[client.id]
+
+  watch(client, function(){
+    for(var i = 0; i <= clients.length; i++) {
+      if(clients[i].id == user.id) {
+        clients[i] = client
+      }
+    }
+});
+
+	//client = clients[client.id]
 	id++
 	ws.on('message', message => {
 		if(!message.startsWith("[") && !message.endsWith("]")) {
@@ -41,9 +57,6 @@ wss.on('connection', ws => {
 		} else {
 			var controls = JSON.parse(message);
 			switch (controls[0]) {
-        case opCodes.getId:
-        return
-        break;
 				case opCodes.setNick:
 					if(controls[1].length >= 1 && controls[1].length <= 12) {
 						client.nick = controls[1]
@@ -63,14 +76,10 @@ wss.on('connection', ws => {
 						msg = msg.replace(/</g, "&lt;")
 						msg = msg.replace(/>/g, "&gt;")
 					}
-					if(msg.toString().length >= 1 && msg.toString().length <= 512 && !msg.startsWith(cmdChar)) {
+					if((msg.toString().length >= 1 && msg.toString().length <= 512 || client.admin) && !msg.startsWith(cmdChar)) {
 						msg = msg.trim()
 						console.log(msg)
-						for(var i = 0; i < clients.length; i++) {
-							if(clients[i].disconnected == false) {
-								clients[i].send(`${client.before}: ${msg}`)
-							}
-						}
+						sendToUsers(`${client.before}: ${msg}`)
           } else if(msg.toString().length >= 1 && msg.toString().length <= 512 && msg.startsWith(cmdChar)) {
 						var command = msg.substr(1);
 						var commandVars = command.split(" ")
@@ -92,7 +101,15 @@ wss.on('connection', ws => {
 		}
 	})
 	ws.on('close', function(reasonCode, description) {
-		console.log("Client " + client.id + " closed.")
-		client.disconnected = true
+    var user = client
+
+    var clIdx = clients.indexOf(client);
+    if (clIdx > -1) {
+        //doUpdatePlayerLeave(worldName, client.id)
+        clients.splice(clIdx, 1);
+    }
+    console.log("Client " + user.id + " disconnected.")
+    sendToUsers("Client " + user.id + " disconnected.")
+    return;
 	})
 })
