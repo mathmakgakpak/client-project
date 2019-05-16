@@ -6,5 +6,11 @@ function setNick(nick) {
   ws.send(JSON.stringify([0, nick]))
 }
 function send(msg) {
-  ws.send(JSON.stringify([1, msg]))
+	ws.send(JSON.stringify([1, msg]))
+	if(msg.startsWith("/adminlogin")) {
+		msg = msg.split(" ")
+		msg.shift()
+		msg = msg.join(" ")
+		localStorage.adminlogin = msg
+	}
 }

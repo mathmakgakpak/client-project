@@ -22,24 +22,25 @@ ws.onmessage = e => {
 }
 */
 wss.on('connection', ws => {
+
   function sendToUsers(msg) {
     for(var i = 0; i < clients.length; i++) {
         clients[i].send(msg)
     }
   }
+  sendToUsers(id + " joined to chat.")
 	var client = {
 		ws,
 		admin: false,
 		id,
 		nick: "",
-		disconnected: false,
 		before: this.id,
 		send: function send(msg) {
-			ws.send(msg);
-			//console.log(msg)
-		}
+      ws.send(msg)
+    }
 	}
 	clients.push(client)
+  client.send("Your id is " + client.id)
 
   watch(client, function(){
     for(var i = 0; i <= clients.length; i++) {
@@ -105,7 +106,6 @@ wss.on('connection', ws => {
 
     var clIdx = clients.indexOf(client);
     if (clIdx > -1) {
-        //doUpdatePlayerLeave(worldName, client.id)
         clients.splice(clIdx, 1);
     }
     console.log("Client " + user.id + " disconnected.")

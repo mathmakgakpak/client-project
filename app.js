@@ -45,6 +45,12 @@ function setNickButton() {
 	}
 }
 
+function reconnect() {
+  ws.close()
+  ws = new WebSocket(url)
+  connectConfig()
+}
+
 function connectConfig() {
 	ws.onopen = () => {
 		if(localStorage.adminlogin) {
@@ -56,11 +62,8 @@ function connectConfig() {
 		}
 	}
 	ws.onclose = () => {
-		localSend("Disconnected. Trying to reconnect.")
-		setTimeout(function() {
-			ws = new WebSocket(url)
-			connectConfig()
-		}, 3000)
+      localSend("Disconnected.")
+      localSend("To connect click this button <button onclick='reconnect()'>Reconnect</button>")
 	}
 	ws.onmessage = e => {
 		localSend(e.data)
