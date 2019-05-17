@@ -1,4 +1,5 @@
 const WebSocket = require('ws')
+const fs = require('ws')
 const wss = new WebSocket.Server({
 	port: 8080
 })
@@ -21,7 +22,7 @@ ws.onmessage = e => {
   console.log(e.data)
 }
 */
-wss.on('connection', ws => {
+wss.on('connection', (ws, req) => {
 
   function sendToUsers(msg) {
     for(var i = 0; i < clients.length; i++) {
@@ -37,7 +38,8 @@ wss.on('connection', ws => {
 		before: this.id,
 		send: function send(msg) {
       ws.send(msg)
-    }
+    },
+    ip: req.connection.remoteAddress.replace('::ffff:', '')
 	}
 	clients.push(client)
   client.send("Your id is " + client.id)
@@ -104,9 +106,12 @@ wss.on('connection', ws => {
 	ws.on('close', function(reasonCode, description) {
     var user = client
 
-    var clIdx = clients.indexOf(client);
-    if (clIdx > -1) {
-        clients.splice(clIdx, 1);
+    for(var i = 0; i < clients.length; i++){
+      if (clients[i].id === user.id) {
+        clients[i].ws.close()
+        clients.splice(i, 1);
+        return;
+      }
     }
     console.log("Client " + user.id + " disconnected.")
     sendToUsers("Client " + user.id + " disconnected.")

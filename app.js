@@ -1,4 +1,4 @@
-var url = "wss://server-sender-1--gabrielmakiewic.repl.co"
+var url = "wss://server-sender-2--gabrielmakiewic.repl.co"
 var ws = new WebSocket(url)
 
 function localSend(msg) {
