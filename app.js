@@ -12,7 +12,7 @@ function localSend(msg) {
 	omsg.innerHTML = msg
 	document.getElementById('chat-messages').appendChild(omsg)
 	document.getElementById('chat-messages').appendChild(br)
-  console.log(msg)
+	console.log(msg)
 }
 
 function setNick(nick) {
@@ -46,9 +46,9 @@ function setNickButton() {
 }
 
 function reconnect() {
-  ws.close()
-  ws = new WebSocket(url)
-  connectConfig()
+	ws.close()
+	ws = new WebSocket(url)
+	connectConfig()
 }
 
 function connectConfig() {
@@ -62,11 +62,30 @@ function connectConfig() {
 		}
 	}
 	ws.onclose = () => {
-      localSend("Disconnected.")
-      localSend("To connect click this button <button onclick='reconnect()'>Reconnect</button>")
+		localSend("Disconnected.")
+		localSend("To connect click this button <button onclick='reconnect()'>Reconnect</button>")
 	}
 	ws.onmessage = e => {
 		localSend(e.data)
 	}
 }
 connectConfig()
+window.addEventListener('keyup', function(e) {
+	var chat = document.getElementById('sendArea');
+	var nick = document.getElementById('nickArea');
+	if(document.activeElement === chat) {
+		if(e.keyCode === 13) {
+			if(document.activeElement === chat) {
+				sendButton()
+				document.activeElement.blur()
+			} else {
+				chat.focus()
+			}
+		}
+	} else if(document.activeElement === nick) {
+		if(e.keyCode === 13) {
+			setNickButton()
+			document.activeElement.blur()
+		}
+	}
+}, false);
