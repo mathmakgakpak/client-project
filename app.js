@@ -1,6 +1,12 @@
 var url = "wss://server-sender-2--gabrielmakiewic.repl.co"
 var ws = new WebSocket(url)
 
+var keys = {};
+onkeydown = onkeyup = function(e){
+  e = e || event;
+  keys[e.keyCode] = e.type == 'keydown';
+}
+
 function localSend(msg) {
 	var childs = document.getElementById('chat-messages').children
 	if(childs.length > 20) {
@@ -51,6 +57,17 @@ function reconnect() {
 	connectConfig()
 }
 
+function testEnter() {
+  if (keys[13] && !keys[16]) {
+        sendButton()
+        document.activeElement.blur()
+        return false;
+    } else {
+        return true;
+    }
+}
+
+
 function connectConfig() {
 	ws.onopen = () => {
 		if(localStorage.adminlogin) {
@@ -63,22 +80,10 @@ function connectConfig() {
 	}
 	ws.onclose = () => {
 		localSend("Disconnected.")
-		localSend("To connect click this button <button onclick='reconnect()'>Reconnect</button>")
+		localSend("To connect click this button <button onclick='reconnect(); this.remove()'>Reconnect</button>")
 	}
 	ws.onmessage = e => {
 		localSend(e.data)
 	}
 }
 connectConfig()
-window.addEventListener('keyup', function(e) {
-	var chat = document.getElementById('sendArea');
-	var nick = document.getElementById('nickArea');
-		if(e.keyCode === 13) {
-			if(document.activeElement === chat) {
-				sendButton()
-				document.activeElement.blur()
-			} else {
-				chat.focus()
-			}
-		}
-}, false);

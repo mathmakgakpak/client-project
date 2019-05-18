@@ -9,7 +9,7 @@
     <script type="text/javascript" src="./app.js" async></script>
   </head>
   <body>
-    <textarea id="sendArea" placeholder="Chat here"></textarea>
+    <textarea id="sendArea" onkeypress="testEnter();" placeholder="Chat here"></textarea>
     <button id="sendButton" onclick="sendButton()">send</button>
     <textarea id="nickArea" placeholder="Nick here"></textarea>
     <button id="setNickButton" onclick="setNickButton()">set Nick</button>
