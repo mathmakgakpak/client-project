@@ -73,7 +73,6 @@ connectConfig()
 window.addEventListener('keyup', function(e) {
 	var chat = document.getElementById('sendArea');
 	var nick = document.getElementById('nickArea');
-	if(document.activeElement === chat) {
 		if(e.keyCode === 13) {
 			if(document.activeElement === chat) {
 				sendButton()
@@ -82,10 +81,4 @@ window.addEventListener('keyup', function(e) {
 				chat.focus()
 			}
 		}
-	} else if(document.activeElement === nick) {
-		if(e.keyCode === 13) {
-			setNickButton()
-			document.activeElement.blur()
-		}
-	}
 }, false);
