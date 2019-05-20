@@ -37,6 +37,7 @@ wss.on('connection', (ws, req) => {
 	sendToUsers(id + " joined to chat.")
 	var client = {
 		ws,
+    req,
 		admin: false,
 		id,
 		nick: "",
@@ -164,6 +165,20 @@ wss.on('connection', (ws, req) => {
 
               } else {
                 client.send(cmdChar + "banip [ip]")
+              }
+            } else if(cmdCheck == "whois" && client.admin == true) {
+              var id = Number(commandVars[0])
+              var target = getPlayerById(id)
+              if(target) {
+                client.send(`-> id: ${target.id}\n` +
+                    `-> nick: ${target.nick}\n` +
+                    `-> admin: ${target.admin}\n` +
+                    `-> ip: ${target.ip}\n` +
+                    `-> origin: ${target.req.url}`)
+              } else if(!id) {
+                client.send(cmdChar + "whois [id]")
+              } else if(!target){
+                client.send("Player not found.")
               }
             } else {
               client.send("Command is not defined.")
