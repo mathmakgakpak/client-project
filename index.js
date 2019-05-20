@@ -22,6 +22,13 @@ ws.onmessage = e => {
 }
 */
 wss.on('connection', (ws, req) => {
+  if (!fs.existsSync("./bans.txt")) {
+    fs.writeFile("./bans.txt", '', function(err) {
+      if(err) {
+        return console.log(err);
+      }
+    });
+  }
 	function sendToUsers(msg) {
 		for(var i = 0; i < clients.length; i++) {
 			clients[i].send(msg)
@@ -34,11 +41,22 @@ wss.on('connection', (ws, req) => {
 		id,
 		nick: "",
 		before: this.id,
-		send: function send(msg) {
+		send: function(msg) {
 			ws.send(msg)
 		},
 		ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress.replace('::ffff:', '')
 	}
+
+
+
+  var banned = fs.readFileSync("./bans.txt").toString().split("\n");
+
+
+    for(i = 0; i < banned.length; i++) {
+      if(banned[i] == client.ip) {
+        client.send("You are banned. Apeal for unban on: https://discord.gg/DTGAq4b")
+        client.ws.close()
+      }}
 	clients.push(client)
 	client.send("Your id is " + client.id)
 	watch(client, function() {
@@ -70,20 +88,23 @@ wss.on('connection', (ws, req) => {
 					}
 					break;
 				case opCodes.send:
-					var msg = controls[1]
-					msg = msg.trim()
+        function getPlayerById(id) {
+          var target = clients.find(function(target) {
+              return target.id == id;
+          });
+          return target
+        }
+					var msg = controls[1].trim()
 					if(client.admin == false) {
-						msg = msg.replace(/</g, "&lt;")
-						msg = msg.replace(/>/g, "&gt;")
+						msg = msg.replace(/</g, "&lt;").replace(/>/g, "&gt;")
 					}
 					if(msg.toString().length >= 1 && msg.toString().length <= 512 && !client.admin && !msg.startsWith(cmdChar)) {
 						console.log(`${client.before}: ${msg}`)
 						sendToUsers(`${client.before}: ${msg}`)
 					} else if(msg.toString().length >= 1 && msg.toString().length <= 999999 && client.admin && !msg.startsWith(cmdChar)) {
-						msg = msg.trim()
 						console.log(`${client.before}: ${msg}`)
 						sendToUsers(`${client.before}: ${msg}`)
-					} else if(msg.toString().length >= 1 && msg.toString().length <= 512 && msg.startsWith(cmdChar)) {
+					} else if(msg.toString().length >= 1 && msg.startsWith(cmdChar)) {
 						var command = msg.substr(1);
 						var commandVars = command.split(" ")
 						commandVars.shift()
@@ -97,7 +118,56 @@ wss.on('connection', (ws, req) => {
 								client.send("Wrong password")
 								client.admin = false
 							}
-						}
+						} else if(cmdCheck == "kick" && client.admin == true) {
+                var kickId = Number(commandVars[0])
+                var player = getPlayerById(kickId)
+                if(player) {
+                  player.ws.close()
+                } else if(!kickId) {
+                  client.send(cmdChar + "kick [id]")
+                } else if(!player) {
+                  client.send("Player not found.")
+                }
+            } else if(cmdCheck == "banip" && client.admin == true) {
+              var ip = commandVars[0]
+
+              if (ip) {
+                if (fs.existsSync("./bans.txt")) {
+                  fs.appendFileSync("./bans.txt", `${ip}\n`);
+            } else {
+
+              fs.writeFile("./bans.txt", `${ip}\n`, function(err) {
+                if(err) {
+                  return console.log(err);
+                }
+              });
+
+          }
+
+          function sendStaff(message) {
+            clients.forEach(function(client) {
+              if (client.admin) {
+                client.send(message)
+              }
+            })
+          }
+
+          sendStaff(`Banned ip: ${ip}`)
+          clients.forEach(function(client) {
+            if (client.ip == ip) {
+              client.ws.close()
+            }
+          })
+
+
+
+
+              } else {
+                client.send(cmdChar + "banip [ip]")
+              }
+            } else {
+              client.send("Command is not defined.")
+            }
 					}
 					break;
 			}

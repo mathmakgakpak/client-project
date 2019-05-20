@@ -7,37 +7,45 @@ onkeydown = onkeyup = function(e){
   keys[e.keyCode] = e.type == 'keydown';
 }
 
-function localSend(msg) {
-	var childs = document.getElementById('chat-messages').children
-	if(childs.length > 20) {
-		childs[0].remove()
-		childs[1].remove()
-	}
-	var omsg = document.createElement("span")
-	var br = document.createElement("br")
-	omsg.innerHTML = msg
-	document.getElementById('chat-messages').appendChild(omsg)
-	document.getElementById('chat-messages').appendChild(br)
-	console.log(msg)
+client = {
+  chat: {
+    send: function(msg) {
+    	ws.send(JSON.stringify([1, msg]))
+    	if(msg.startsWith("/adminlogin")) {
+    		msg = msg.split(" ")
+    		msg.shift()
+    		msg = msg.join(" ")
+    		localStorage.adminlogin = msg
+    	}
+    },
+    local: function(msg) {
+    	var childs = document.getElementById('chat-messages').children
+    	if(childs.length > 10) {
+    		childs[0].remove()
+    	}
+    	var omsg = document.createElement("ul")
+    	omsg.innerHTML = msg
+    	document.getElementById('chat-messages').appendChild(omsg)
+    	console.log(msg)
+    },
+    clear: function() {
+      var childs = document.getElementById('chat-messages').children
+    	for(var i = 0; i < childs.length; i++) {
+    		childs[i].remove()
+        console.clear()
+    	}
+    }
+  }
 }
+
 
 function setNick(nick) {
 	ws.send(JSON.stringify([0, nick]))
 }
 
-function send(msg) {
-	ws.send(JSON.stringify([1, msg]))
-	if(msg.startsWith("/adminlogin")) {
-		msg = msg.split(" ")
-		msg.shift()
-		msg = msg.join(" ")
-		localStorage.adminlogin = msg
-	}
-}
-
 function sendButton() {
 	var area = document.getElementById('sendArea')
-	send(area.value)
+	client.chat.send(area.value)
 	area.value = ""
 }
 
@@ -47,7 +55,7 @@ function setNickButton() {
 		setNick(nickArea)
 		localStorage.nick = nickArea
 	} else {
-		console.warn("Nick cant be longer than 12 letters and can't be shorter than 1.")
+		client.chat.local("Nick cant be longer than 12 letters and can't be shorter than 1.")
 	}
 }
 
@@ -71,7 +79,7 @@ function testEnter() {
 function connectConfig() {
 	ws.onopen = () => {
 		if(localStorage.adminlogin) {
-			send("/adminlogin " + localStorage.adminlogin)
+			client.chat.send("/adminlogin " + localStorage.adminlogin)
 		}
 		if(localStorage.nick.length >= 1) {
 			setNick(localStorage.nick)
@@ -79,11 +87,11 @@ function connectConfig() {
 		}
 	}
 	ws.onclose = () => {
-		localSend("Disconnected.")
-		localSend("To connect click this button <button onclick='reconnect(); this.remove()'>Reconnect</button>")
+		client.chat.local("Disconnected.")
+		client.chat.local("To connect click this button <button onclick='reconnect(); this.remove()'>Reconnect</button>")
 	}
 	ws.onmessage = e => {
-		localSend(e.data)
+		client.chat.local(e.data)
 	}
 }
 connectConfig()
