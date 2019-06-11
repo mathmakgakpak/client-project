@@ -59,12 +59,8 @@ function sendButton() {
 
 function setNickButton() {
 	var nickArea = document.getElementById('nickArea').value
-	if(nickArea.length >= 1 && nickArea.length <= 12) {
-		setNick(nickArea)
-		localStorage.nick = nickArea
-	} else {
-		client.chat.local("Nick cant be longer than 12 letters and can't be shorter than 1.")
-	}
+	setNick(nickArea)
+	localStorage.nick = nickArea
 }
 
 function reconnect() {
