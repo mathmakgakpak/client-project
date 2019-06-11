@@ -15,6 +15,11 @@ const opCodes = {
 	setNick: 0,
 	send: 1
 };
+function sendToUsers(msg) {
+  for(var i = 0; i < clients.length; i++) {
+    clients[i].send(msg)
+  }
+}
 /*
 var ws = new WebSocket("wss://server-sender--gabrielmakiewic.repl.co")
 ws.onmessage = e => {
@@ -29,11 +34,6 @@ wss.on('connection', (ws, req) => {
       }
     });
   }
-	function sendToUsers(msg) {
-		for(var i = 0; i < clients.length; i++) {
-			clients[i].send(msg)
-		}
-	}
 	sendToUsers(id + " joined to chat.")
 	var client = {
 		ws,

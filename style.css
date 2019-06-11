@@ -1,0 +1,19 @@
+@font-face{
+ font-family:'digital-clock-font';
+ src: url('./digital 7.ttf');
+}
+
+.clock {
+	border-radius: 25px;
+	width:190px;
+	height:100px;
+	background-color: #00001a;
+	color: white;
+	font-family: 'digital-clock-font';
+	font-size: 100px;
+	text-align: center;
+	border:3px solid #0033cc;
+	position: absolute;
+	top: 0px;
+    right: 0px;
+}

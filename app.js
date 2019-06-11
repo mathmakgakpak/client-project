@@ -43,6 +43,14 @@ function setNick(nick) {
 	ws.send(JSON.stringify([0, nick]))
 }
 
+function clockStart() {
+	var today = new Date();
+	var hours = today.getHours() < 10 ? '0' + today.getHours() : today.getHours();
+	var minutes = today.getMinutes() < 10 ? '0' + today.getMinutes() : today.getMinutes();
+	document.getElementById("clock").innerHTML = `${hours}:${minutes}`
+	setTimeout(clockStart, 1000);
+}
+
 function sendButton() {
 	var area = document.getElementById('sendArea')
 	client.chat.send(area.value)

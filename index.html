@@ -6,13 +6,15 @@
 		<meta name="description" content="Mathias377 websocket chat">
 		<meta name="keywords" content="chat, ws, ws chat, chat ws, mathias377, mathias, mathias377 chat, mathias chat, chat mathias377, chat mathias">
     <title>mathias377 chat</title>
-    <script type="text/javascript" src="./app.js" async></script>
+    <script type="text/javascript" src="./app.js?v=10" async></script>
+	<link rel="stylesheet" type="text/css" href="./style.css?v=10">
   </head>
-  <body>
+  <body onload="clockStart()">
     <textarea id="sendArea" onkeypress="testEnter();" placeholder="Chat here"></textarea>
     <button id="sendButton" onclick="sendButton()">send</button>
     <textarea id="nickArea" placeholder="Nick here"></textarea>
     <button id="setNickButton" onclick="setNickButton()">set Nick</button>
+	<div id="clock" class="clock">12:00</div>
     <br>
     <div id="chat">
 			<ul id="chat-messages"></ul>
